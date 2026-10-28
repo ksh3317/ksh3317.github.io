@@ -24,13 +24,13 @@ Knights Frontier 3기에 들어오게 된 **김승하(shion)**입니다. 배운 
 ## 🏆 Awards & Certificates
 
 
-- 2025.03 - ADsP(데이터분석 준전문가)
+- 2026.03 - ADsP(데이터분석 준전문가)
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Language**: Python, C, C++, java (학부 수업에서 학습)
+- **Language**: Python, C, C++, Java (학부 수업에서 학습)
 - **Tools**: VS Code
 - **Environment**: Linux, macOS
 
