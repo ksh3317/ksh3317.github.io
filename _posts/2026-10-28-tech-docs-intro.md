@@ -1,7 +1,7 @@
 ---
 title: "블로그를 시작하며"
 date: 2026-10-28 10:50:00 +0900
-categories: [블로그·기술문서]
+categories: [블로그/기술문서]
 tags: [intro, blog]
 ---
 

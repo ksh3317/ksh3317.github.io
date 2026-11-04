@@ -5,7 +5,7 @@
 | 파일 | 용도 |
 |---|---|
 | `project.md` | 개발 프로젝트 |
-| `ctf-wargame.md` | CTF·Wargame 문제 풀이 |
+| `ctf-wargame.md` | CTF/Wargame 문제 풀이 |
 | `activity.md` | 컨퍼런스, 공모전, 자격증, 교육 등 활동 기록 |
 
 ## 새 글 만드는 순서

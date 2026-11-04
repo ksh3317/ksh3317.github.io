@@ -1,7 +1,7 @@
 ---
 title: "[플랫폼] 문제 이름"
 date: YYYY-MM-DD HH:MM:SS +0900
-categories: [CTF·Wargame]
+categories: [CTF/Wargame]
 tags: []
 # image: /assets/img/posts/폴더이름/cover.png
 ---

@@ -7,7 +7,7 @@ tags: []
 ---
 
 {% comment %}
-categories에 넣을 이름: 논문·컨퍼런스 / 공모전·자격증 / 블로그·기술문서 / Bug Bounty
+categories에 넣을 이름 (하나 선택): [논문/컨퍼런스], [공모전/자격증], [블로그/기술문서], [Bug Bounty]
 {% endcomment %}
 
 ## 📌 정보
