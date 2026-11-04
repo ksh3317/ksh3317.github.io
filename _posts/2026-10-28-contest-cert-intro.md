@@ -1,5 +1,5 @@
 ---
-title: "ADsP(데이터분석 준전문가) 취득 후기"
+title: "ADsP(데이터분석 준전문가)"
 date: 2026-10-28 10:40:00 +0900
 categories: [공모전·자격증]
 tags: [adsp, certificate]
