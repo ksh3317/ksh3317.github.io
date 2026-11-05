@@ -50,6 +50,7 @@ layout: default
 {% if paginator.page == 1 %}
   <section id="category-board" class="px-xl-1">
     <p class="board-head"><span class="prompt">$</span> ls ~/categories</p>
+    <div class="board-wrap">
     <div class="board">
       {% for category in site.data.sidebar_categories %}
         {% assign count = site.categories[category.name] | size %}
@@ -59,6 +60,8 @@ layout: default
           <span class="tile-count">{{ count }} {% if count == 1 %}post{% else %}posts{% endif %}</span>
         </a>
       {% endfor %}
+    </div>
+    <img class="mallangi" src="{{ '/assets/img/mallangi/terminal.svg' | relative_url }}" alt="터미널 앞에서 공부하는 말랑이">
     </div>
   </section>
 {% endif %}
