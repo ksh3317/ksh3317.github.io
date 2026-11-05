@@ -180,7 +180,232 @@ body::before {
     border-left: 4px solid var(--accent);
   }
 
-  #post-list .card-wrapper:hover .card {
-    border-color: var(--accent);
+}
+
+.prompt {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ---------- 홈: 카테고리 보드, 글 목록 ---------- */
+
+.board-head,
+.list-head {
+  font-family: $mono;
+  font-size: 0.9rem;
+  color: var(--heading-color);
+  margin: 0 0 0.75rem;
+}
+
+#category-board {
+  margin-top: 2rem;
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 2.25rem;
+
+    @media (max-width: 575px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--btn-border-color);
+    border-radius: 0.75rem;
+    background: var(--card-bg);
+    color: var(--heading-color);
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.2s;
+
+    &:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+  }
+
+  .tile-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+
+    i {
+      color: var(--accent);
+    }
+  }
+
+  .tile-count {
+    font-family: $mono;
+    font-size: 0.78rem;
+    color: var(--text-muted-color);
+  }
+}
+
+.list-head {
+  margin-top: 2rem;
+}
+
+#category-board + .list-head {
+  margin-top: 0;
+}
+
+#post-list {
+  margin-top: 0 !important;
+
+  .post-preview {
+    box-shadow: inset 3px 0 0 var(--accent), var(--card-shadow);
+    transition: box-shadow 0.2s;
+
+    &:hover {
+      box-shadow: inset 3px 0 0 var(--accent), 0 0 0 1px var(--accent);
+    }
+  }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: 0.5rem;
+    padding: 0.1rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--link-color);
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+}
+
+/* ---------- 오른쪽 패널, 푸터 ---------- */
+
+#panel-wrapper .panel-heading {
+  font-family: $mono;
+  text-transform: none;
+}
+
+footer .footer-built {
+  font-family: $mono;
+}
+
+/* ---------- About ---------- */
+
+.profile-card {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--btn-border-color);
+  border-radius: 0.75rem;
+
+  img {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: var(--accent) 0 0 0 2px;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .profile-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--heading-color);
+  }
+
+  .profile-sub {
+    font-family: $mono;
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  @media (max-width: 575px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.timeline {
+  margin: 0 0 1rem 0.5rem;
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--btn-border-color);
+
+  .tl-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: calc(-1.5rem - 8px);
+      top: 0.2rem;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--main-bg);
+      border: 2px solid var(--accent);
+    }
+  }
+
+  .tl-date {
+    font-family: $mono;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  .tl-what strong {
+    color: var(--heading-color);
+    margin-right: 0.35rem;
+  }
+}
+
+.chip-group {
+  font-size: 0.85rem;
+  color: var(--text-muted-color);
+  margin: 0.75rem 0 0.5rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--btn-border-color);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-color);
+
+  i {
+    color: var(--accent);
+  }
+}
+
+a.chip {
+  border-bottom: 1px solid var(--btn-border-color) !important;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--accent) !important;
+    color: var(--link-color);
   }
 }

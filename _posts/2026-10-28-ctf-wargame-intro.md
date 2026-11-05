@@ -3,6 +3,7 @@ title: "CTF/Wargame 카테고리 소개"
 date: 2026-10-28 10:20:00 +0900
 categories: [CTF/Wargame]
 tags: [intro]
+hidden: true   # 홈 목록에서만 숨김 (카테고리 페이지에는 보임)
 ---
 
 워게임 문제 풀이와 CTF 대회 참가 기록을 정리하는 공간입니다.

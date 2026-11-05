@@ -3,6 +3,7 @@ title: "Bug Bounty 카테고리 소개"
 date: 2026-10-28 10:10:00 +0900
 categories: [Bug Bounty]
 tags: [intro]
+hidden: true   # 홈 목록에서만 숨김 (카테고리 페이지에는 보임)
 ---
 
 버그바운티 공부와 참여 기록을 정리하는 공간입니다.
