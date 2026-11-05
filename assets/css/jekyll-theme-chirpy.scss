@@ -67,8 +67,9 @@ $mono: 'SFMono-Regular', Menlo, Consolas, monospace;
 #sidebar {
   .site-title {
     font-family: $mono;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
+    white-space: nowrap;
 
     &::before {
       content: '> ';
@@ -202,12 +203,12 @@ body::before {
 
   .board {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.75rem;
     margin-bottom: 2.25rem;
 
     @media (max-width: 575px) {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -255,12 +256,14 @@ body::before {
 
     .board {
       flex: 1;
+      min-width: 0;
       margin-bottom: 0;
     }
   }
 
-  .mallangi {
-    width: 170px;
+  .mallangi-terminal {
+    width: 160px;
+    height: 111px;
     flex-shrink: 0;
 
     @media (max-width: 767px) {
@@ -269,15 +272,30 @@ body::before {
   }
 }
 
+/* 말랑이: <img>를 쓰면 Chirpy가 미리보기 이미지 틀로 감싸서 배경으로 넣음 */
+.mallangi {
+  background: no-repeat center / contain;
+}
+
+.mallangi-terminal {
+  background-image: url('{{ "/assets/img/mallangi/terminal.svg" | relative_url }}');
+}
+
+.mallangi-confused {
+  background-image: url('{{ "/assets/img/mallangi/confused.svg" | relative_url }}');
+}
+
 /* ---------- 404 ---------- */
 
 .not-found {
   text-align: center;
   padding: 1rem 0 2rem;
 
-  img {
+  .mallangi-confused {
     width: 200px;
+    height: 167px;
     max-width: 60%;
+    margin: 0 auto;
   }
 
   .not-found-code {
