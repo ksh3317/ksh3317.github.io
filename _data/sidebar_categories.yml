@@ -1,0 +1,14 @@
+# 왼쪽 메뉴에 보이는 카테고리 (글의 categories 이름과 똑같이 적어야 합니다)
+
+- name: 개발
+  icon: fas fa-code
+- name: CTF/Wargame
+  icon: fas fa-flag
+- name: Bug Bounty
+  icon: fas fa-bug
+- name: 블로그/기술문서
+  icon: fas fa-book
+- name: 논문/컨퍼런스
+  icon: fas fa-microphone
+- name: 공모전/자격증
+  icon: fas fa-award

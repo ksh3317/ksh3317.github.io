@@ -1,0 +1,146 @@
+---
+---
+
+@use 'abstracts/variables' with (
+  $theme: '{{ site.theme_mode }}',
+  $font-family-base: ('Pretendard Variable', Pretendard, -apple-system, sans-serif),
+  $font-family-heading: ('Pretendard Variable', Pretendard, -apple-system, sans-serif)
+);
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+
+/* ---------- 색상 (터미널 그린) ---------- */
+
+@mixin light-colors {
+  --accent: #16a34a;
+  --accent-soft: rgb(22 163 74 / 10%);
+  --link-color: #15803d;
+  --link-underline-color: rgb(22 163 74 / 30%);
+  --checkbox-checked-color: var(--accent);
+  --site-title-color: #1f2937;
+  --sidebar-active-color: #15803d;
+  --sidebar-hover-bg: var(--accent-soft);
+}
+
+@mixin dark-colors {
+  --accent: #4ade80;
+  --accent-soft: rgb(74 222 128 / 10%);
+  --link-color: #4ade80;
+  --link-underline-color: rgb(74 222 128 / 30%);
+  --checkbox-checked-color: var(--accent);
+  --site-title-color: #e5e7eb;
+  --sidebar-bg: #161b18;
+  --sidebar-active-color: #4ade80;
+  --sidebar-hover-bg: var(--accent-soft);
+}
+
+:root[data-bs-theme='light'],
+:root:not([data-bs-theme]) {
+  @include light-colors;
+}
+
+:root[data-bs-theme='dark'] {
+  @include dark-colors;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-bs-theme]) {
+    @include dark-colors;
+  }
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* ---------- 왼쪽 메뉴 ---------- */
+
+$mono: 'SFMono-Regular', Menlo, Consolas, monospace;
+
+#sidebar {
+  .site-title {
+    font-family: $mono;
+    font-size: 1.5rem;
+    font-weight: 700;
+
+    &::before {
+      content: '> ';
+      color: var(--accent);
+    }
+
+    &::after {
+      content: '_';
+      color: var(--accent);
+      animation: cursor-blink 1s steps(1) infinite;
+    }
+  }
+
+  .site-subtitle {
+    font-style: normal !important;
+  }
+
+  #avatar {
+    box-shadow: var(--accent) 0 0 0 2px;
+  }
+
+  ul {
+    margin-bottom: 1rem;
+
+    li.nav-item.active .nav-link {
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+  }
+
+  .nav-section-title {
+    font-family: $mono;
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin: 0.5rem 0 0.25rem;
+    padding-left: 2.5rem;
+    opacity: 0.85;
+  }
+
+  ul.nav-categories {
+    margin-bottom: 2rem;
+
+    li.nav-item {
+      margin-top: 0;
+
+      a.nav-link {
+        padding-top: 0.4rem;
+        padding-bottom: 0.4rem;
+        font-weight: 500;
+
+        span {
+          font-size: 85%;
+        }
+      }
+    }
+  }
+}
+
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---------- 본문 ---------- */
+
+#main-wrapper {
+  .content h2 {
+    padding-left: 0.75rem;
+    border-left: 4px solid var(--accent);
+  }
+
+  #post-list .card-wrapper:hover .card {
+    border-color: var(--accent);
+  }
+}
