@@ -7,7 +7,7 @@ order: 4
 <div class="profile-card">
   <img src="{{ site.avatar | relative_url }}" alt="shion">
   <div>
-    <p class="profile-name">👋 Hello, I'm shion</p>
+    <p class="profile-name">Hello, I'm shion</p>
     <p class="profile-sub">Knights Frontier 3기 · 김승하(shion)</p>
     <p>Knights Frontier 3기에 들어오게 된 <strong>김승하(shion)</strong>입니다. 배운 것을 정리하고 기록하며 성장 과정을 남기기 위해 이 블로그를 작성하려고 합니다.</p>
   </div>
@@ -16,7 +16,7 @@ order: 4
 > 스스로 공부하는 방법을 찾으면서 공부한 내용을 내 언어로 다시 정리하는 것이 저의 목표입니다.
 {: .prompt-tip }
 
-## 🛡️ Activities & Awards
+## Activities & Awards
 
 <div class="timeline">
   <div class="tl-item">
@@ -37,27 +37,27 @@ order: 4
   </div>
 </div>
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 <p class="chip-group">Language (학부 수업에서 학습)</p>
 <div class="chips">
-  <span class="chip"><i class="fab fa-python"></i>Python</span>
-  <span class="chip"><i class="fas fa-c"></i>C</span>
-  <span class="chip"><i class="fas fa-code"></i>C++</span>
-  <span class="chip"><i class="fab fa-java"></i>Java</span>
+  <span class="chip">Python</span>
+  <span class="chip">C</span>
+  <span class="chip">C++</span>
+  <span class="chip">Java</span>
 </div>
 
 <p class="chip-group">Tools / Environment</p>
 <div class="chips">
-  <span class="chip"><i class="fas fa-code"></i>VS Code</span>
-  <span class="chip"><i class="fab fa-linux"></i>Linux</span>
-  <span class="chip"><i class="fab fa-apple"></i>macOS</span>
+  <span class="chip">VS Code</span>
+  <span class="chip">Linux</span>
+  <span class="chip">macOS</span>
 </div>
 
-## 📫 Contact
+## Contact
 
 <div class="chips">
-  <a class="chip" href="https://github.com/ksh3317" target="_blank" rel="noopener"><i class="fab fa-github"></i>ksh3317</a>
-  <a class="chip" href="mailto:seoungha317@gmail.com"><i class="fas fa-envelope"></i>seoungha317@gmail.com</a>
-  <a class="chip" href="https://ksh3317.github.io"><i class="fas fa-globe"></i>ksh3317.github.io</a>
+  <a class="chip" href="https://github.com/ksh3317" target="_blank" rel="noopener">ksh3317</a>
+  <a class="chip" href="mailto:seoungha317@gmail.com">seoungha317@gmail.com</a>
+  <a class="chip" href="https://ksh3317.github.io">ksh3317.github.io</a>
 </div>

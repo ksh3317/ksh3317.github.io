@@ -11,7 +11,7 @@
       {%- endif -%}
     </a>
 
-    <a class="site-title d-block" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <a class="site-title d-block" href="{{ '/' | relative_url }}"><span class="title-mallangi" aria-hidden="true"></span>{{ site.title }}</a>
     <p class="site-subtitle fst-italic mb-0">{{ site.tagline }}</p>
   </header>
   <!-- .profile-wrapper -->
@@ -21,7 +21,6 @@
       <!-- home -->
       <li class="nav-item{% if page.layout == 'home' %}{{ " active" }}{% endif %}">
         <a href="{{ '/' | relative_url }}" class="nav-link">
-          <i class="fa-fw fas fa-home"></i>
           <span>{{ site.data.locales[include.lang].tabs.home | upcase }}</span>
         </a>
       </li>
@@ -29,7 +28,6 @@
       {% for tab in site.tabs %}
         <li class="nav-item{% if tab.url == page.url %}{{ " active" }}{% endif %}">
           <a href="{{ tab.url | relative_url }}" class="nav-link">
-            <i class="fa-fw {{ tab.icon }}"></i>
             {% capture tab_name %}{{ tab.url | split: '/' }}{% endcapture %}
 
             <span>{{ site.data.locales[include.lang].tabs.[tab_name] | default: tab.title | upcase }}</span>
@@ -40,13 +38,12 @@
     </ul>
 
     <!-- categories -->
-    <p class="nav-section-title">~/categories</p>
+    <p class="nav-section-title">카테고리</p>
     <ul class="nav nav-categories">
       {% for category in site.data.sidebar_categories %}
         {% capture category_url %}/categories/{{ category.name | slugify | url_encode }}/{% endcapture %}
         <li class="nav-item{% if page.layout == 'category' and page.title == category.name %}{{ " active" }}{% endif %}">
           <a href="{{ category_url | relative_url }}" class="nav-link">
-            <i class="fa-fw {{ category.icon }}"></i>
             <span>{{ category.name }}</span>
           </a>
         </li>
