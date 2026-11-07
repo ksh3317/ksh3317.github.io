@@ -1,5 +1,5 @@
 ---
-title: "나의 선택 기준과 나이츠프론티어에서의 목표"
+title: "나에 대해 기록하기"
 date: 2026-11-07 16:00:00 +0900
 categories: [블로그/기술문서]
 tags: [knights-frontier, values, goals]
