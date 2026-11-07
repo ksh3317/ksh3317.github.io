@@ -1,17 +1,26 @@
 <!-- The Side Bar -->
 
 <aside aria-label="Sidebar" id="sidebar" class="d-flex flex-column align-items-end">
-  <header class="profile-wrapper">
-    <a href="{{ '/' | relative_url }}" id="avatar" class="rounded-circle">
-      {%- if site.avatar != empty and site.avatar -%}
-        {%- capture avatar_url -%}
-          {% include media-url.html src=site.avatar %}
-        {%- endcapture -%}
-        <img src="{{- avatar_url -}}" width="112" height="112" alt="avatar" onerror="this.style.display='none'">
-      {%- endif -%}
-    </a>
+  <!-- 사이드바 윗부분: 픽셀 밤하늘과 말랑이 (직접 만든 그림) -->
+  <a href="{{ '/' | relative_url }}" id="night-banner" aria-label="home">
+    <svg class="night-sky" viewBox="0 0 52 30" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges" aria-hidden="true">
+      <rect width="52" height="30" fill="#1a1626"/>
+      <rect y="18" width="52" height="12" fill="#1e1930"/>
+      <g fill="#b794f6"><rect class="tw1" x="6" y="5" width="1" height="1"/><rect class="tw2" x="31" y="3" width="1" height="1"/><rect x="44" y="9" width="1" height="1" opacity=".7"/></g>
+      <g fill="#4ade80" opacity=".6"><rect x="18" y="8" width="1" height="1"/><rect x="39" y="15" width="1" height="1"/></g>
+      <g fill="#d4d4d8" opacity=".4"><rect x="12" y="13" width="1" height="1"/><rect class="tw3" x="25" y="11" width="1" height="1"/><rect x="48" y="4" width="1" height="1"/><rect x="3" y="16" width="1" height="1"/></g>
+      <rect y="27" width="52" height="3" fill="#166534"/>
+      <rect y="27" width="52" height="1" fill="#4ade80"/>
+    </svg>
+    <svg class="night-mallangi" viewBox="0 0 15 12" shape-rendering="crispEdges" aria-hidden="true">
+      <g fill="#b794f6"><rect x="4" y="1" width="3" height="1"/><rect x="9" y="1" width="2" height="1"/><rect x="3" y="2" width="9" height="1"/><rect x="2" y="3" width="11" height="1"/><rect x="1" y="4" width="13" height="6"/><rect x="0" y="10" width="15" height="1"/></g>
+      <g fill="#1b1b1e"><rect x="5" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="6" y="8" width="3" height="1"/></g>
+      <g fill="#1b1b1e" class="eyes"><rect x="5" y="5" width="1" height="2"/><rect x="9" y="5" width="1" height="2"/></g>
+    </svg>
+  </a>
 
-    <a class="site-title d-block" href="{{ '/' | relative_url }}"><span class="title-mallangi" aria-hidden="true"></span>{{ site.title }}</a>
+  <header class="profile-wrapper">
+    <a class="site-title d-block" href="{{ '/' | relative_url }}">{{ site.title }}</a>
     <p class="site-subtitle fst-italic mb-0">{{ site.tagline }}</p>
   </header>
   <!-- .profile-wrapper -->

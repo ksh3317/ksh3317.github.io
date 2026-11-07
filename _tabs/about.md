@@ -5,7 +5,7 @@ order: 4
 ---
 
 <div class="profile-card">
-  <img src="{{ site.avatar | relative_url }}" alt="shion">
+  <span class="profile-mallangi" aria-hidden="true"></span>
   <div>
     <p class="profile-name">Hello, I'm shion</p>
     <p class="profile-sub">Knights Frontier 3기 · 김승하(shion)</p>

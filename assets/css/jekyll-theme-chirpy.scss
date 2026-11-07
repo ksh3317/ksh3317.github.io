@@ -89,6 +89,16 @@ article header h1,
 
 /* ---------- 왼쪽 메뉴 ---------- */
 
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.15; }
+}
+
+@keyframes mallangi-blink {
+  0%, 94%, 100% { opacity: 1; }
+  95%, 98% { opacity: 0; }
+}
+
 #sidebar {
   .site-title {
     display: flex !important;
@@ -98,12 +108,43 @@ article header h1,
     white-space: nowrap;
   }
 
-  .title-mallangi {
-    width: 30px;
-    height: 24px;
+  /* 윗부분 픽셀 밤하늘 + 말랑이 */
+  #night-banner {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 9.5rem;
     flex-shrink: 0;
-    background: url('{{ "/assets/img/mallangi/pixel.svg" | relative_url }}') no-repeat center / contain;
-    image-rendering: pixelated;
+    margin-bottom: 1.5rem;
+
+    .night-sky {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .night-mallangi {
+      position: absolute;
+      left: 50%;
+      bottom: -0.9rem;
+      width: 6.75rem;
+      height: 5.4rem;
+      transform: translateX(-50%);
+    }
+  }
+
+  .profile-wrapper {
+    margin-top: 0.5rem;
+  }
+
+  .tw1 { animation: star-twinkle 4s steps(1) infinite; }
+  .tw2 { animation: star-twinkle 6s steps(1) 1.5s infinite; }
+  .tw3 { animation: star-twinkle 5s steps(1) 3s infinite; }
+  .eyes { animation: mallangi-blink 5s steps(1) infinite; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tw1, .tw2, .tw3, .eyes { animation: none; }
   }
 
   .site-subtitle {
@@ -262,12 +303,12 @@ article header h1 {
   align-items: center;
   margin-bottom: 1.5rem;
 
-  img {
-    width: 80px;
+  .profile-mallangi {
+    width: 100px;
     height: 80px;
     flex-shrink: 0;
-    object-fit: cover;
-    border-radius: 50%;
+    background: url('{{ "/assets/img/mallangi/pixel.svg" | relative_url }}') no-repeat center / contain;
+    image-rendering: pixelated;
   }
 
   p {
