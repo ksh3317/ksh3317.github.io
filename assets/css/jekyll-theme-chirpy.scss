@@ -78,6 +78,7 @@ $pixel: Galmuri11, 'Pretendard Variable', monospace;
 #panel-wrapper .post-tag,
 footer,
 .post-tag,
+.post-tail-category,
 .dynamic-title,
 article header h1,
 .tl-date,
@@ -187,6 +188,28 @@ article header h1,
   .category-label {
     margin-left: 0.75rem;
     color: var(--accent);
+  }
+}
+
+/* ---------- 글 하단 ---------- */
+
+article .post-tail-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--main-border-color);
+
+  .post-tail-category {
+    margin-right: 0.5rem;
+    color: var(--accent);
+    font-size: 0.85rem;
+  }
+
+  .post-tag {
+    margin: 0;
   }
 }
 
