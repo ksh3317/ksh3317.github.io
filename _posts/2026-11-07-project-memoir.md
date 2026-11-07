@@ -1,6 +1,6 @@
 ---
 title: "지금까지의 활동 정리"
-date: 2026-11-07 16:00:00 +0900
+date: 2026-11-07 22:00:00 +0900
 categories: [블로그/기술문서]
 tags: [knights-frontier, retrospective]
 ---
