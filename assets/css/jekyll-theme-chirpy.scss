@@ -38,6 +38,8 @@
   --link-underline-color: rgb(183 148 246 / 30%);
   --checkbox-checked-color: var(--accent);
   --sidebar-bg: #161618;
+  --night-sky-bg: #18151f;
+  --night-stars-opacity: 1;
   --sidebar-active-color: var(--accent);
   --sidebar-hover-bg: var(--accent-soft);
 }
@@ -108,43 +110,74 @@ article header h1,
     white-space: nowrap;
   }
 
-  /* 윗부분 픽셀 밤하늘 + 말랑이 */
-  #night-banner {
-    position: relative;
-    display: block;
-    width: 100%;
-    height: 9.5rem;
-    flex-shrink: 0;
-    margin-bottom: 1.5rem;
+  /* 배경: 사이드바 전체 밤하늘, 위에는 자는 말랑이, 아래에는 땅 위의 말랑이 */
+  background: var(--night-sky-bg, var(--sidebar-bg));
 
-    .night-sky {
-      position: absolute;
-      inset: 0;
+  > *:not(.night-stars):not(.night-ground) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .night-stars {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: var(--night-stars-opacity, 0);
+  }
+
+  .sleep-mallangi {
+    display: block;
+    width: 5.5rem;
+    height: 4.75rem;
+    margin-bottom: 0.75rem;
+
+    svg {
       width: 100%;
       height: 100%;
     }
+  }
 
-    .night-mallangi {
+  .sidebar-bottom {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1.75rem;
+  }
+
+  .night-ground {
+    position: sticky;
+    bottom: 0;
+    flex-shrink: 0;
+    width: 100%;
+    height: 0.75rem;
+    margin-top: auto;
+    background: #166534;
+    border-top: 0.25rem solid #4ade80;
+
+    .ground-mallangi {
       position: absolute;
-      left: 50%;
-      bottom: -0.9rem;
-      width: 6.75rem;
-      height: 5.4rem;
-      transform: translateX(-50%);
+      right: 1.5rem;
+      bottom: 100%;
+      width: 4.25rem;
+      height: 3.4rem;
+      margin-bottom: 0.25rem;
     }
   }
 
   .profile-wrapper {
-    margin-top: 0.5rem;
+    margin-top: 1.5rem;
   }
 
   .tw1 { animation: star-twinkle 4s steps(1) infinite; }
   .tw2 { animation: star-twinkle 6s steps(1) 1.5s infinite; }
   .tw3 { animation: star-twinkle 5s steps(1) 3s infinite; }
   .eyes { animation: mallangi-blink 5s steps(1) infinite; }
+  .zz1 { animation: star-twinkle 3s steps(1) infinite; }
+  .zz2 { animation: star-twinkle 3s steps(1) 1.5s infinite; }
 
   @media (prefers-reduced-motion: reduce) {
-    .tw1, .tw2, .tw3, .eyes { animation: none; }
+    .tw1, .tw2, .tw3, .eyes, .zz1, .zz2 { animation: none; }
   }
 
   .site-subtitle {
