@@ -142,7 +142,7 @@ article header h1,
   .sidebar-bottom {
     position: relative;
     z-index: 1;
-    margin-bottom: 1.75rem;
+    margin-bottom: 3.25rem;
   }
 
   .night-ground {
@@ -150,9 +150,10 @@ article header h1,
     left: 0;
     bottom: 0;
     width: 100%;
-    height: 0.75rem;
+    height: 2.5rem;
     background: #166534;
     border-top: 0.25rem solid #4ade80;
+    box-shadow: inset 0 -0.75rem 0 #14532d;
 
     .ground-mallangi {
       position: absolute;
@@ -171,12 +172,14 @@ article header h1,
   .tw1 { animation: star-twinkle 4s steps(1) infinite; }
   .tw2 { animation: star-twinkle 6s steps(1) 1.5s infinite; }
   .tw3 { animation: star-twinkle 5s steps(1) 3s infinite; }
+  .tw4 { animation: star-twinkle 7s steps(1) 2s infinite; }
+  .tw5 { animation: star-twinkle 4.5s steps(1) 0.8s infinite; }
   .eyes { animation: mallangi-blink 5s steps(1) infinite; }
   .zz1 { animation: star-twinkle 3s steps(1) infinite; }
   .zz2 { animation: star-twinkle 3s steps(1) 1.5s infinite; }
 
   @media (prefers-reduced-motion: reduce) {
-    .tw1, .tw2, .tw3, .eyes, .zz1, .zz2 { animation: none; }
+    .tw1, .tw2, .tw3, .tw4, .tw5, .eyes, .zz1, .zz2 { animation: none; }
   }
 
   .site-subtitle {
