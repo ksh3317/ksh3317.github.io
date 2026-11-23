@@ -5,32 +5,11 @@ categories: [CTF/Wargame]
 tags: [knights-frontier, space-alone, pwnable, system-hacking]
 ---
 
-{% comment %}
-작성 안내 (블로그에는 보이지 않음)
-
-- 이 글은 초안이다. 그대로 올리지 말고 내가 이해한 말로 다시 쓴다.
-- 흐름: 각 챕터를
-  대상 분석(코드 → 보호기법) → Exploit 아이디어 → 필요한 정보 확인(gdb로 오프셋 수집)
-  → Exploit(스크립트) → 클리어, 순서로 "정답으로 가는 길 하나"로 쭉 흐르게 쓴다.
-- 오답·삽질은 본문에 넣지 않는다. 꼭 남기고 싶은 교훈적 실패는 챕터 끝 "부록"으로 뺀다.
-  단순 실수(오타 등)는 아예 적지 않는다.
-- 보호기법이 있어서 우회가 필요한 부분은 "틀렸다가 고쳤다"가 아니라
-  "이 보호기법이 있으니 이렇게 처리한다"로, 방법 자체로 서술한다.
-- 시스템 해킹을 처음 보는 사람도 따라올 수 있게, 용어가 처음 나오면 풀어서 설명한다.
-- 코드 발췌는 취약점이 보이는 함수 위주로. checksec·gdb·성공 출력 캡처는
-  assets/img/posts/space-alone/ 폴더에 넣는다.
-- ch1~4는 내 writeup-notes.md 내용을 이 흐름으로 옮긴 초안이다. ch5~10은 빈 틀이니 직접 채운다.
-{% endcomment %}
-
 ## 들어가며
-
-{% comment %} 이 워게임을 하게 된 계기(Knights Frontier 미션)와 Space Alone이 어떤 문제인지 한두 문단으로 내 말로 {% endcomment %}
 
 Space Alone은 리눅스 권한 상승을 단계별로 풀어 나가는 워게임이다. 각 챕터가 하나의 리눅스 계정에 대응하고 이전 계정에서 익스플로잇으로 다음 계정의 쉘을 얻어 올라가는 구조다. Knights Frontier 미션으로 풀게 됐는데 ch1부터 ch10까지 쉘코드, ROP, 포맷 스트링, 스택 피벗 같은 기법이 난이도 순으로 하나씩 더해져서, 시스템 해킹을 처음 공부하는 입장에서 기법을 차례로 익히기 좋았다.
 
 ### 실습 환경 세팅
-
-{% comment %} 같은 Apple Silicon Mac 사용자를 위한 정리. 캡처 몇 장 넣으면 좋음 {% endcomment %}
 
 Apple Silicon Mac이라 배포된 `SpaceAlone.ova`(VirtualBox용 x86-64)가 그대로 열리지 않았다. UTM을 에뮬레이트(Emulate) 모드로 써서 x86-64 VM을 띄웠다.
 
@@ -41,9 +20,7 @@ Apple Silicon Mac이라 배포된 `SpaceAlone.ova`(VirtualBox용 x86-64)가 그�
 
 ### 게임 구조
 
-{% comment %} 전체 그림용 표. 본문에서 계정 체인을 설명할 때 참고 {% endcomment %}
-
-각 챕터는 uid 501~511 계정에 대응한다. 이전 계정에서 익스플로잇으로 다음 계정 쉘을 얻고 `status`로 다음 비밀번호를 확인한 뒤 `su`로 넘어가는 식으로 진행한다.
+각 챕터는 uid 501~511 계정에 대응한다. 진행 방식은 이렇다. 먼저 이전 계정에서 익스플로잇으로 다음 계정의 쉘을 얻는다. 그 쉘에서 `id`나 `status`를 치면 다음 챕터 비밀번호가 뜬다. 이 비밀번호를 확인한 뒤 원래 스테이지로 돌아가 `next`를 입력하면 비밀번호 입력창이 뜨는데 여기에 적으면 다음 챕터로 넘어간다.
 
 | uid | 계정 | 챕터 |
 |-----|------|------|
@@ -63,8 +40,6 @@ Apple Silicon Mac이라 배포된 `SpaceAlone.ova`(VirtualBox용 x86-64)가 그�
 
 ## Chapter 1 — MV
 
-{% comment %} 목표: The_Encrypted_Message(501) → Decoding_for_Escape(502). 한 줄 요약 내 말로 {% endcomment %}
-
 ### 먼저 알아둘 개념 — 버퍼 오버플로우
 
 프로그램이 입력을 받을 때 받을 공간(버퍼)보다 긴 값을 넣으면 그 공간을 넘어 바로 옆 메모리까지 덮어쓰게 된다. 이것을 버퍼 오버플로우라고 한다. 지역변수들은 스택에 연달아 놓여서 한 버퍼가 넘치면 옆 변수나 더 나아가 함수의 복귀 주소까지 바꿀 수 있다.
@@ -74,8 +49,6 @@ Apple Silicon Mac이라 배포된 `SpaceAlone.ova`(VirtualBox용 x86-64)가 그�
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} MV.c에서 root() 진입 조건(cmp3, cmp4), admin 변수, scanf 부분만 발췌하고 취약점 라인 표시 {% endcomment %}
 
 ![MV 바이너리와 파일 목록](/assets/img/posts/space-alone/ch1/ch1_ls.png)
 
@@ -98,8 +71,6 @@ void root(){ /* 메뉴 2 */ file_read(".TOP_SECRET"); }   // 다음 챕터 비�
 
 **보호기법 확인 (checksec)**
 
-{% comment %} checksec ./MV 캡처 + 한 줄 판정 {% endcomment %}
-
 ![MV checksec 결과](/assets/img/posts/space-alone/ch1/ch1_checksec.png)
 
 `checksec`은 바이너리에 어떤 보호 기법(카나리, NX, PIE 등)이 걸려 있는지 보여주는 도구다(pwntools에 딸려 온다). 여기서는 NX·PIE·CET가 켜져 있지만, 이번 공격은 복귀 주소나 절대 주소를 전혀 쓰지 않고 변수 하나만 덮는 것이라 이 보호 기법들에 걸리지 않는다. 보호 기법이 많아도 공격이 그걸 건드리지 않으면 무용지물이라는 점을 보여주는 챕터다.
@@ -112,8 +83,6 @@ void root(){ /* 메뉴 2 */ file_read(".TOP_SECRET"); }   // 다음 챕터 비�
 
 ### 3. 필요한 정보 확인
 
-{% comment %} gdb로 버퍼 시작과 admin 변수 사이 거리(오프셋)를 확인한 과정, 정확한 수치 채우기 {% endcomment %}
-
 ![disass main — 버퍼와 admin 변수 오프셋](/assets/img/posts/space-alone/ch1/ch1_disass.png)
 
 버퍼와 `admin` 변수 사이 거리를 알아야 "confirm"을 정확히 그 위치에 놓을 수 있다. 이런 메모리 위치는 gdb라는 디버거로 확인한다. `disass main`으로 함수를 어셈블리로 풀어 보면, 각 변수에 접근하는 명령의 `rbp-0x..` 오프셋이 보여 두 변수의 거리를 계산할 수 있다.
@@ -123,8 +92,6 @@ void root(){ /* 메뉴 2 */ file_read(".TOP_SECRET"); }   // 다음 챕터 비�
 - 거리: `0x30 - 0x1a = 0x16 = 22바이트`. 즉 id_input 시작부터 22바이트 뒤가 `admin` 변수다.
 
 ### 4. Exploit
-
-{% comment %} 최종 입력 구성: "admin" 접두 + 패딩 + "confirm". 실제 값 채우기 {% endcomment %}
 
 ID 입력칸에 다음을 넣는다. 앞 5바이트로 cmp3(“admin”으로 시작)을 통과시키면서, 22바이트 뒤 `admin` 변수 자리에 "confirm"을 얹어 cmp4까지 만족시킨다.
 
@@ -142,8 +109,6 @@ ID 입력칸에 다음을 넣는다. 앞 5바이트로 cmp3(“admin”으로 �
 
 ### 5. 클리어
 
-{% comment %} 성공 출력과 얻은 권한(Decoding_for_Escape), status로 다음 비번 {% endcomment %}
-
 `Redirect to Admin page`가 뜨면 ADMIN 메뉴 2번으로 `.TOP_SECRET`을 출력시킨다. 여기 적힌 값이 Chapter 2 비밀번호다.
 
 ![Decoding_for_Escape 권한 획득](/assets/img/posts/space-alone/ch1/ch1_sol.png)
@@ -151,8 +116,6 @@ ID 입력칸에 다음을 넣는다. 앞 5바이트로 cmp3(“admin”으로 �
 ---
 
 ## Chapter 2 — File_Decoder
-
-{% comment %} 목표: Decoding_for_Escape(502) → Breaking_Through_for_Survival(503). 한 줄 요약 {% endcomment %}
 
 ### 먼저 알아둘 개념 — 쉘코드, NX, ASLR
 
@@ -166,8 +129,6 @@ ID 입력칸에 다음을 넣는다. 앞 5바이트로 cmp3(“admin”으로 �
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} File_Decoder.c에서 gets(serial) 부분 발췌, 취약점 라인 표시 {% endcomment %}
 
 ![File_Decoder 파일 목록](/assets/img/posts/space-alone/ch2/ch2_ls.png)
 
@@ -187,8 +148,6 @@ int main(){
 `strlen==29 && strcmp` 통과 경로는 미끼다. 통과해도 `print_file()`은 스토리 파일만 출력할 뿐 다음 비번이 아니다. 진짜 공략은 `gets(serial)`의 오버플로우로 복귀 주소를 덮어 쉘코드로 점프시키는 것이다.
 
 **보호기법 확인 (checksec)**
-
-{% comment %} 캡처 + 아래 판정을 내 말로 {% endcomment %}
 
 ![File_Decoder checksec 결과](/assets/img/posts/space-alone/ch2/ch2_checksec.png)
 
@@ -210,8 +169,6 @@ ASLR이 켜져 있어 스택 주소가 매 실행마다 바뀌므로 고정 주�
 
 ### 4. Exploit
 
-{% comment %} sol.py 구조/페이로드 채우기 (복귀주소 범위 스윕 + NOP썰매 + 쉘코드) {% endcomment %}
-
 쉘코드는 `setreuid(euid,euid)` 뒤에 `execve("/bin/sh")`를 실행하도록 짠다(setuid 권한을 유지하려고 setreuid를 먼저 넣는다). `gets`는 개행(`0x0a`)까지 읽으므로 페이로드에 `0x0a`가 들어가면 안 된다.
 
 ```
@@ -224,8 +181,6 @@ ASLR이 켜져 있어 스택 주소가 매 실행마다 바뀌므로 고정 주�
 
 ### 5. 클리어
 
-{% comment %} 성공 출력 캡처, 권한 {% endcomment %}
-
 ![Breaking_Through_for_Survival 쉘 획득](/assets/img/posts/space-alone/ch2/ch2_sol.png)
 
 Breaking_Through_for_Survival(uid 503) 쉘을 얻고 `status`로 다음 챕터 비밀번호를 확보했다.
@@ -233,8 +188,6 @@ Breaking_Through_for_Survival(uid 503) 쉘을 얻고 `status`로 다음 챕터 �
 ---
 
 ## Chapter 3 — stage3
-
-{% comment %} 목표: Breaking_Through_for_Survival(503) → Scavening_for_Survival(504). 한 줄 요약 {% endcomment %}
 
 ### 먼저 알아둘 개념 — ret2win과 No PIE
 
@@ -245,8 +198,6 @@ ch2는 쉘코드를 직접 넣었지만 바이너리 안에 이미 `system("/bin
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} Open_Door()의 scanf와, 호출되지 않는 shell() 함수 발췌 {% endcomment %}
 
 ![stage3 파일 목록](/assets/img/posts/space-alone/ch3/ch3_ls.png)
 
@@ -263,8 +214,6 @@ void Open_Door(){                   // 메뉴 [5]
 `shell()`에 `system("/bin/sh")`가 있지만 메뉴 분기 어디에서도 호출되지 않아 정상 실행으로는 도달할 수 없다. 메뉴 `[5]`로 들어가는 `Open_Door()`의 `scanf`가 길이 제한이 없으니, 복귀 주소를 `shell()` 주소로 덮어 강제로 점프시킨다(ret2win).
 
 **보호기법 확인 (checksec)**
-
-{% comment %} 캡처 + No PIE가 왜 중요한지 {% endcomment %}
 
 ![stage3 checksec 결과](/assets/img/posts/space-alone/ch3/ch3_checksec.png)
 
@@ -293,8 +242,6 @@ Chapter 2와 달리 쉘코드를 직접 짤 필요가 없고, No PIE라 함수 �
 
 ### 5. 클리어
 
-{% comment %} 성공 출력, 권한, 다음 비번 {% endcomment %}
-
 ![Scavening_for_Survival 쉘 획득](/assets/img/posts/space-alone/ch3/ch3_sol.png)
 
 `You Open the Armory Door!`가 출력되고 uid 504(Scavening_for_Survival) 쉘을 얻었다.
@@ -302,8 +249,6 @@ Chapter 2와 달리 쉘코드를 직접 짤 필요가 없고, No PIE라 함수 �
 ---
 
 ## Chapter 4 — stage4
-
-{% comment %} 목표: Scavening_for_Survival(504) → 다음 단계. 여기서 난이도가 오른다는 점 한 줄 {% endcomment %}
 
 ### 먼저 알아둘 개념 — ROP와 ret2libc (그리고 64비트)
 
@@ -318,8 +263,6 @@ Chapter 2와 달리 쉘코드를 직접 짤 필요가 없고, No PIE라 함수 �
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} read 오버플로우, 메뉴 2의 printf("%p", &read), gadget(), MasterKey("/bin/sh") 발췌 {% endcomment %}
 
 ![stage4 파일 목록](/assets/img/posts/space-alone/ch4/ch4_ls.png)
 
@@ -342,8 +285,6 @@ int main(){
 셸을 띄울 함수가 아예 없어서 libc의 `system("/bin/sh")`를 ROP로 직접 조립해야 한다. 메뉴 2가 노출하는 `read` 주소로 libc base를 역산하고, `MasterKey`("/bin/sh")와 `gadget()`의 `pop rdi; ret`을 재료로 쓴다.
 
 **보호기법 확인 (checksec)**
-
-{% comment %} 캡처 + 64비트, NX 등 판정 {% endcomment %}
 
 ![stage4 checksec 결과](/assets/img/posts/space-alone/ch4/ch4_checksec.png)
 
@@ -371,8 +312,6 @@ int main(){
 
 ### 4. Exploit
 
-{% comment %} sol.py 요지를 코드로 채우기 {% endcomment %}
-
 메뉴 2로 read 주소를 받아 libc base를 역산한 뒤, 정렬용 `ret` → `pop rdi` → "/bin/sh" → `system` 순으로 체인을 올린다.
 
 ```python
@@ -393,8 +332,6 @@ p.send(payload)
 
 ### 5. 클리어
 
-{% comment %} 성공 출력, 권한, 다음 비번 {% endcomment %}
-
 노출된 read 주소(`0x7f…`)로 libc base를 역산하고 system을 계산해 체인을 보내면 셸이 떨어진다. `status`로 Chapter 5 비밀번호(`i_gROPed_for_food_in_the_dark`)를 확인한다.
 
 ![The_Alarm_of_Hope 쉘 획득](/assets/img/posts/space-alone/ch4/ch4_sol.png)
@@ -402,8 +339,6 @@ p.send(payload)
 ---
 
 ## Chapter 5 — The_Alarm_of_Hope
-
-{% comment %} 목표: The_Alarm_of_Hope(uid 505) → 다음 단계. 여기서 스택 카나리가 처음 등장한다. (로그인 비번: i_gROPed_for_food_in_the_dark) {% endcomment %}
 
 ### 먼저 알아둘 개념 — 스택 카나리
 
@@ -420,8 +355,6 @@ Chapter 1~4에서는 버퍼 오버플로우로 함수의 복귀 주소(함수가
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} ips.c의 IPS() 발췌 — struct auth, read 길이 버그, while(count<3) {% endcomment %}
 
 ![The_Alarm_of_Hope 파일 목록](/assets/img/posts/space-alone/ch5/ch5_ls.png)
 
@@ -440,8 +373,6 @@ strncmp(passwd, auth->passwd, sizeof(auth))   // sizeof(auth)=8(포인터) → 8
 
 **보호기법 확인 (checksec)**
 
-{% comment %} checksec 캡처 {% endcomment %}
-
 ![The_Alarm_of_Hope checksec 결과](/assets/img/posts/space-alone/ch5/ch5_checksec.png)
 
 `checksec`은 바이너리에 어떤 보호 기법이 걸려 있는지 한눈에 보여주는 도구다(pwntools에 딸려 온다). 결과를 보면 64비트, No PIE라 함수 주소는 고정이고, 이번엔 Canary가 켜져 있다(NX도 켜짐). 카나리 때문에 단순 오버플로우로는 복귀 주소를 덮을 수 없다.
@@ -459,8 +390,6 @@ strncmp(passwd, auth->passwd, sizeof(auth))   // sizeof(auth)=8(포인터) → 8
 - 3번째: 복귀 주소를 덮는다. 카나리 자리에는 1번째에서 읽어 둔 값을 그대로 넣어 검사를 통과시키고, 복귀 주소를 인증 성공 분기(`return 0`)로 돌린다.
 
 ### 3. 필요한 정보 확인
-
-{% comment %} gdb disass IPS — 카나리 설정, 버퍼 위치 캡처 {% endcomment %}
 
 ![disass IPS — 버퍼와 카나리 위치](/assets/img/posts/space-alone/ch5/ch5_disass.png)
 
@@ -502,8 +431,6 @@ p.sendafter(b"Password: ", b"A"*56 + p64(canary) + p64(1) + p64(0x401981))
 
 ### 5. 클리어
 
-{% comment %} 30초 대기 후 쉘, 권한, 다음 비번 캡처 {% endcomment %}
-
 ![Crisis_at_the_Vault 쉘 획득](/assets/img/posts/space-alone/ch5/ch5_sol.png)
 
 세 번째 시도까지 끝나면 `while` 루프를 빠져나오며 30초 카운트다운이 돈다(`for(i=30; i>0) sleep(1)`). 이 카운트다운이 끝나야 `return`이 실행되고, 복원한 카나리 덕분에 검사를 통과해 복귀 주소(`0x401981`)로 점프한다. 30초를 기다리면 다음 단계 권한의 셸이 떨어지고, `status`로 Chapter 6 비밀번호 `i_wA5_A_bos5...`를 확인한다.
@@ -511,8 +438,6 @@ p.sendafter(b"Password: ", b"A"*56 + p64(canary) + p64(1) + p64(0x401981))
 ---
 
 ## Chapter 6 — Crisis_at_the_Vault
-
-{% comment %} 목표: Crisis_at_the_Vault(uid 506) → 다음 단계. 카나리에 더해 libc 주소까지 직접 흘려 읽는다. (로그인 비번: i_wA5_A_bos5...) {% endcomment %}
 
 ### 먼저 알아둘 개념 — libc 주소 leak
 
@@ -523,8 +448,6 @@ ch4에서는 메뉴가 친절하게 `read` 주소를 알려줘서 libc base를 �
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} prob.c — diary 포인터 배열, 메뉴 1 puts(leak)/메뉴 2 read(overflow) 발췌 {% endcomment %}
 
 ![Crisis_at_the_Vault 파일 목록](/assets/img/posts/space-alone/ch6/ch6_ls.png)
 
@@ -545,8 +468,6 @@ read(0, diary[index], 0x100);    // 작은 버퍼에 256바이트 → 오버플�
 
 **보호기법 확인 (checksec)**
 
-{% comment %} checksec 캡처 {% endcomment %}
-
 ![Crisis_at_the_Vault checksec 결과](/assets/img/posts/space-alone/ch6/ch6_checksec.png)
 
 64비트, No PIE(함수 주소 고정), Partial RELRO, Canary, NX. 카나리가 있어 Chapter 5의 우회가 필요하고, No PIE지만 바이너리 안에 쓸 가젯이 부족해 libc 가젯을 쓴다. 그래서 libc 주소도 알아내야 한다.
@@ -560,8 +481,6 @@ read(0, diary[index], 0x100);    // 작은 버퍼에 256바이트 → 오버플�
 - ret2libc: 복원한 카나리와 함께 `pop rdi → "/bin/sh" → system` 체인을 `main` 복귀 주소에 올린다. (Chapter 4와 같은 구조다.)
 
 ### 3. 필요한 정보 확인
-
-{% comment %} 오프셋 수집 {% endcomment %}
 
 - 카나리까지 패딩: 152바이트 (153번째가 카나리의 `\x00`을 덮음).
 - libc 복귀 주소까지: 152(카나리 앞) + 8(카나리) + 8(저장된 rbp) = 168바이트.
@@ -593,8 +512,6 @@ p.sendlineafter(b'> ', b'3')     # 메뉴 3 = break → main return → 체인 �
 
 ### 5. 클리어
 
-{% comment %} 성공 출력, 권한, 다음 비번 캡처 {% endcomment %}
-
 ![Wired_at_the_Vault 쉘 획득](/assets/img/posts/space-alone/ch6/ch6_sol.png)
 
 leak 값에 널바이트가 끼면 가끔 실패하므로 여러 번 시도한다. 성공하면 다음 단계 권한의 셸이 떨어지고, `id`로 권한을 확인한 뒤 `status`로 Chapter 7 비밀번호 `anchovy`를 확인한다.
@@ -602,8 +519,6 @@ leak 값에 널바이트가 끼면 가끔 실패하므로 여러 번 시도한�
 ---
 
 ## Chapter 7 — Wired_at_the_Vault
-
-{% comment %} 목표: Wired_at_the_Vault(uid 507) → 다음 단계. 카나리를 leak하는 대신 검사 자체를 무력화한다. (로그인 비번: anchovy) {% endcomment %}
 
 ### 먼저 알아둘 개념 — GOT 덮어쓰기와 임의 쓰기
 
@@ -614,8 +529,6 @@ leak 값에 널바이트가 끼면 가끔 실패하므로 여러 번 시도한�
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} got.c — wire[] 전역(임의 쓰기), startup()의 read 오버플로우 발췌 {% endcomment %}
 
 ![Wired_at_the_Vault 파일 목록](/assets/img/posts/space-alone/ch7/ch7_ls.png)
 
@@ -639,8 +552,6 @@ int main(){
 
 **보호기법 확인 (checksec)**
 
-{% comment %} checksec 캡처 {% endcomment %}
-
 ![Wired_at_the_Vault checksec 결과](/assets/img/posts/space-alone/ch7/ch7_checksec.png)
 
 64비트, No PIE, Partial RELRO, Canary, NX. 여기서 중요한 것은 Partial RELRO다. GOT(함수 주소표)를 덮어쓸 수 있어, 이게 이번 공격의 전제가 된다.
@@ -652,8 +563,6 @@ int main(){
 그 뒤는 Chapter 6과 비슷하다. `startup()`의 스택 오버플로우로 ROP를 올려 `puts(puts@got)`로 libc 주소를 흘려 읽어 libc base를 구하고, 다시 ret2libc로 `system("/bin/sh")`를 실행한다.
 
 ### 3. 필요한 정보 확인
-
-{% comment %} objdump -R, gdb로 오프셋 수집 {% endcomment %}
 
 ![objdump -R / gdb — GOT와 버퍼 오프셋](/assets/img/posts/space-alone/ch7/ch7_gdb.png)
 
@@ -690,8 +599,6 @@ overflow(b'A'*0x118 + p64(POP_RDI) + p64(binsh) + p64(RET) + p64(libc.sym['syste
 
 ### 5. 클리어
 
-{% comment %} 성공 출력, 권한, 다음 비번 캡처 {% endcomment %}
-
 ![Awakening_in_the_Dark 쉘 획득](/assets/img/posts/space-alone/ch7/ch7_sol.png)
 
 실행하면 셸이 떨어진다. `id`로 권한을 확인하고 `status`로 Chapter 8 비밀번호 `goat_got_got`를 확인한다.
@@ -699,8 +606,6 @@ overflow(b'A'*0x118 + p64(POP_RDI) + p64(binsh) + p64(RET) + p64(libc.sym['syste
 ---
 
 ## Chapter 8 — Awakening_in_the_Dark
-
-{% comment %} 목표: Awakening_in_the_Dark(uid 508) → 다음 단계. 포맷 스트링으로 GOT를 덮어 숨은 함수를 부른다. {% endcomment %}
 
 ### 먼저 알아둘 개념 — 포맷 스트링 버그
 
@@ -711,8 +616,6 @@ overflow(b'A'*0x118 + p64(POP_RDI) + p64(binsh) + p64(RET) + p64(libc.sym['syste
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} fsb.c — printf(buf) 포맷 스트링, 바로 뒤 strstr, 호출되지 않는 win 함수 발췌 {% endcomment %}
 
 ![Awakening_in_the_Dark 파일 목록](/assets/img/posts/space-alone/ch8/ch8_ls.png)
 
@@ -734,8 +637,6 @@ int main(){
 
 **보호기법 확인 (checksec)**
 
-{% comment %} checksec 캡처 {% endcomment %}
-
 ![Awakening_in_the_Dark checksec 결과](/assets/img/posts/space-alone/ch8/ch8_checksec.png)
 
 64비트, No PIE, Partial RELRO, Canary, NX. Partial RELRO라 GOT를 덮어쓸 수 있다.
@@ -747,8 +648,6 @@ int main(){
 GOT를 덮는 수단은 포맷 스트링의 `%n`이다. `%n`은 그때까지 출력한 글자 수를 지정한 주소에 써 준다. 출력 글자 수를 win 주소의 하위 값에 맞추고, 쓸 주소로 `strstr@got`를 지정한다.
 
 ### 3. 필요한 정보 확인
-
-{% comment %} GOT·심볼 주소, 포맷 인자 슬롯 번호 수집 {% endcomment %}
 
 - `strstr@got`: 0x404060, win(`open_emergency_medicine`): 0x401256.
 - 쓸 값: win의 하위 2바이트 `0x1256`. strstr@got가 아직 PLT 스텁이라 상위 바이트는 이미 맞아 있어서, 하위 2바이트만 바꾸면 된다.
@@ -766,19 +665,15 @@ payload += p64(0x404060)                               # 슬롯 10 = strstr@got
 
 ### 5. 클리어
 
-{% comment %} flag 출력 캡처 {% endcomment %}
-
 ![win 함수가 실행되어 flag 출력](/assets/img/posts/space-alone/ch8/ch8_sol.png)
 
 `printf` 직후 `strstr` 호출이 win으로 점프하고, `open_emergency_medicine()`이 flag를 출력한다. 이 값이 Chapter 9 비밀번호(`fsbeeee`)다.
 
-> 참고: 출력되는 flag가 `fsbeeee`처럼 랜덤한 문자열이라 깨진 값으로 착각하기 쉽지만, 이게 진짜 다음 비밀번호다. 확실하지 않으면 그 값으로 `su - 다음계정`을 해보면 바로 확인된다.
+> 참고: 출력되는 flag가 `fsbeeee`처럼 랜덤한 문자열이라 깨진 값으로 착각하기 쉽지만, 이게 진짜 다음 비밀번호다.
 
 ---
 
 ## Chapter 9 — On_the_Edge_of_Time
-
-{% comment %} 목표: On_the_Edge_of_Time(uid 509) → 다음 단계. 입력 공간이 좁고 재진입이 막혀 스택 피벗을 쓴다. {% endcomment %}
 
 ### 먼저 알아둘 개념 — 스택 피벗
 
@@ -789,8 +684,6 @@ payload += p64(0x404060)                               # 슬롯 10 = strstr@got
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} pivot.c — loop 재진입 차단, gadget(), read 오버플로우 발췌 {% endcomment %}
 
 ![On_the_Edge_of_Time 파일 목록](/assets/img/posts/space-alone/ch9/ch9_ls.png)
 
@@ -816,8 +709,6 @@ int main(void){
 
 **보호기법 확인 (checksec)**
 
-{% comment %} checksec 캡처 {% endcomment %}
-
 ![On_the_Edge_of_Time checksec 결과](/assets/img/posts/space-alone/ch9/ch9_checksec.png)
 
 No canary, NX, No PIE(주소 고정), Full RELRO. Full RELRO라 GOT는 못 덮으니 libc를 leak해 ret2libc로 가야 한다. CET(SHSTK/IBT)가 켜져 있지만 이 에뮬 환경에서는 강제되지 않아 ROP가 통한다.
@@ -829,8 +720,6 @@ No canary, NX, No PIE(주소 고정), Full RELRO. Full RELRO라 GOT는 못 덮�
 피벗한 뒤에는 ROP로 `read`를 직접 호출한다. `main`을 거치지 않으니 `loop` 검사를 피할 수 있고, BSS에 훨씬 긴 체인을 다시 읽어 넣어 공간 제약을 없앤다. 거기서 `puts(puts@got)`로 libc를 leak하고, 마지막으로 `system("/bin/sh")`를 실행한다.
 
 ### 3. 필요한 정보 확인
-
-{% comment %} objdump로 가젯 주소 수집 {% endcomment %}
 
 ![objdump — gadget 주소 수집](/assets/img/posts/space-alone/ch9/ch9_objdump.png)
 
@@ -869,8 +758,6 @@ Stage 1에서 `read`를 부를 때 길이(rdx)를 따로 세팅하지 않는 것
 
 ### 5. 클리어
 
-{% comment %} 성공 출력, 권한, 다음 비번 캡처 {% endcomment %}
-
 ![The_Cure_Within_Reach 쉘 획득](/assets/img/posts/space-alone/ch9/ch9_sol.png)
 
 세 단계를 차례로 보내면 libc base가 정해지고 `system("/bin/sh")`가 실행돼 셸이 떨어진다(uid 510). `status`로 Chapter 10 비밀번호 `bss_is_useful`을 확인한다.
@@ -878,8 +765,6 @@ Stage 1에서 `read`를 부를 때 길이(rdx)를 따로 세팅하지 않는 것
 ---
 
 ## Chapter 10 — final (The_Cure_Within_Reach)
-
-{% comment %} 목표: The_Cure_Within_Reach(uid 510)의 final을 풀어 uid 511(epilogue) 셸을 얻으면 게임 클리어. 보호 기법이 전부 켜진 마지막 바이너리다. {% endcomment %}
 
 ### 먼저 알아둘 개념 — one_gadget
 
@@ -890,8 +775,6 @@ one_gadget은 libc 안에서 몇 가지 조건만 맞으면 한 줄로 `/bin/sh`
 ### 1. 대상 분석
 
 **코드 확인**
-
-{% comment %} final.c — case 3의 printf(id_number) 포맷 스트링, check_passwd의 read(0,password,100) 발췌 {% endcomment %}
 
 ![The_Cure_Within_Reach 파일 목록](/assets/img/posts/space-alone/ch10/ch10_ls.png)
 
@@ -917,8 +800,6 @@ int main(){
 
 **보호기법 확인 (checksec)**
 
-{% comment %} checksec 캡처 — Full RELRO, 카나리, NX, PIE 전부 켜짐 {% endcomment %}
-
 ![final checksec 결과 — 보호 기법 전부 켜짐](/assets/img/posts/space-alone/ch10/ch10_checksec.png)
 
 Full RELRO, Canary, NX, PIE가 전부 켜져 있다. GOT는 못 덮고(Full RELRO), 카나리를 넘어야 하고(Canary), 코드·가젯 주소가 랜덤(PIE)이라 libc도 알아내야 한다. 즉 카나리·libc·스택 주소를 전부 런타임에 leak해야 한다.
@@ -934,8 +815,6 @@ do-while 루프를 세 바퀴 돌며 처리한다.
 one_gadget은 조건만 맞으면 한 줄로 셸을 띄워 주는 libc 안의 코드다. 복귀 주소에 직접 써 두고, saved RBP를 main의 rbp로 맞춰 one_gadget이 참조하는 자리(argv·envp)가 main 프레임의 빈 영역에 오게 한다.
 
 ### 3. 필요한 정보 확인
-
-{% comment %} leak 오프셋, BOF 패딩, one_gadget 선택 캡처 {% endcomment %}
 
 ![disass — leak 오프셋과 password 버퍼 위치](/assets/img/posts/space-alone/ch10/ch10_disass.png)
 
@@ -963,8 +842,6 @@ send(b'A')   # count==3 → main return → one_gadget
 
 ### 5. 클리어
 
-{% comment %} 성공 출력, 권한, 엔딩 캡처 {% endcomment %}
-
 ![uid 511 셸과 All clear!! 엔딩](/assets/img/posts/space-alone/ch10/ch10_sol.png)
 
 one_gadget이 맞으면 `execve("/bin/sh", NULL, NULL)`이 돌아 uid 511(epilogue) 셸이 떨어진다. `status`를 치면 `All clear!!`가 뜨고, 이걸로 게임 전체가 끝난다. uid 511 셸에서 `./get_vaccine`을 실행하면 백신과 엔딩 연출이 재생된다.
@@ -982,7 +859,5 @@ one_gadget이 맞으면 `execve("/bin/sh", NULL, NULL)`이 돌아 uid 511(epilog
 다만 그만큼 아쉬움도 있다. 챕터를 풀면서 든 생각인데 다른 워게임이나 보안 공부를 어느 정도 한 뒤에 이 미션을 했다면 혼자 힘으로 풀어낸 부분이 더 많았을 테고 그만큼 더 성장했을 것 같다. 이 미션을 조금 나중에 했으면 어땠을까 하는 생각이 남는다. 그래도 완전히 처음인 상태에서 시스템 해킹의 큰 그림을 한 바퀴 돌아봤다는 데 의미를 두려고 한다.
 
 ## 참고 자료
-
-{% comment %} 참고한 자료 링크로 {% endcomment %}
 
 - 공식 저장소: <https://github.com/hspace-io/Space_Alone>
